@@ -23,10 +23,10 @@
 
 * Use kubectl to understand the coupling between pods and services
 
- * Question: What will happen to the service pods if you delete the service? Make a prediction.
- * Delete the service (only): `kubectl delete svc nginx-svc`
- * Attempt to re-list the service pods. What has changed? Was your prediction right?
- * Question: What will the service endpoints look like if you redeploy the service now? Make a prediction.
- * Redeploy the service: `kubectl apply -f ./webapp-svc.yaml`
- * Check the service pod IPs and service endpoints again, looking for a match.
- * What do these experiments tell you about the coupling between a service and the pods that "belong" to it?
+  * Question: What will happen to the service pods if you delete the service? Make a prediction.
+  * Delete the service (only): `kubectl delete svc nginx-svc`
+  * Attempt to re-list the service pods. What has changed? Was your prediction right?
+  * Question: What will the service endpoints look like if you redeploy the service now? Make a prediction.
+  * Redeploy the service: `kubectl apply -f ./webapp-svc.yaml`
+  * Check the service pod IPs and service endpoints again, looking for a match.
+  * What do these experiments tell you about the coupling between a service and the pods that "belong" to it?
