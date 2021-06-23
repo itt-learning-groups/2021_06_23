@@ -30,3 +30,17 @@
   * Redeploy the service: `kubectl apply -f ./webapp-svc.yaml`
   * Check the service pod IPs and service endpoints again, looking for a match.
   * What do these experiments tell you about the coupling between a service and the pods that "belong" to it?
+
+### Explore deployment objects
+
+* Use kubectl to understand the coupling between pods and deployments
+
+  * Question: What will happen to the service pods if you delete the nginx deployment object? Make a prediction.
+  * Delete the deployment (only): `kubectl delete deploy nginx-deployment -n default`
+  * Attempt to re-list the pods. What has changed? What does this tell you about the way pods "belong" to a deployment vs the way they "belong" to a service?
+
+* *A parenthetical final look at service endpoints*
+
+  * *Question: What will the service endpoints look like if you redeploy the deployment object now? Make a prediction.*
+  * *Redeploy the deployment: `kubectl apply -f ./webapp-deployment.yaml`*
+  * *Wait a moment or two, then yet again compare the IPs to the service endpoints.*
