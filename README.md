@@ -107,7 +107,7 @@ Here's a handy list of k8s resource names along with the short-form names you ca
   * `Deployment` objects can do smooth version updates.
     * Note another relevant line from the deployment description: `kubectl describe deploy nginx-deployment-prod -n default | grep -E '^StrategyType'`
       * This should show that we're using the default strategy "Rolling Updates" for automagic zero-downtime updates.
-    * Let's watch a rolling update by deploying a new version of the nginx-deployment-prod deployment with updated container `image: nginx:1.21.0-alpine`
+    * Let's watch a rolling update by deploying a new version of the nginx-deployment-prod deployment with updated container `image: nginx:1.21.0-alpine`. (There's no significance to this particular image tag. The only significance is that it's different from `image: nginx:latest` so it constitutes a deployment version update if we apply it.)
       * Update the container image in your `webapp-deployment-prod.yaml` file and deploy the update via `kubectl apply -f ./webapp-deployment-prod.yaml` again
     * Use kubectl to describe the deployments again: `kubectl describe deploy nginx-deployment-prod -n default`
       * You may not be quick enough to "catch" the rolling update in-progress. But you can still note the replicaSet events listed in the event log at the bottom of the description output. And it you compare the `NewReplicaSet` to what it was a moment ago, you should see that it has changed.
