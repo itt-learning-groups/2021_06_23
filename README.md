@@ -7,6 +7,45 @@
 * Set up an EKS cluster on AWS with a simple deployed `deployment` and `service` as described [here](https://github.com/us-learn-and-devops/2021_05_26/blob/main/README.md) in last week's group exercise.
 * Open up the `webapp-svc.yaml` and `webapp-deployment.yaml` files that you used to deploy the service and deployment objects. We'll want to reference these.
 
+## kubectl short resource-names
+
+Here's a handy list of k8s resource names along with the short-form names you can use in a kubectl command (if the short-form name exists). If the short-form name exists, you can substitute it for the full resource-name. For example `kubectl get ev` works identically to `kubectl get events`.
+
+* certificatesigningrequests (aka 'csr')
+* clusters (valid only for federation apiservers)
+* clusterrolebindings
+* clusterroles
+* componentstatuses (aka 'cs')
+* configmaps (aka 'cm')
+* daemonsets (aka 'ds')
+* deployments (aka 'deploy')
+* endpoints (aka 'ep')
+* events (aka 'ev')
+* horizontalpodautoscalers (aka 'hpa')
+* ingresses (aka 'ing')
+* jobs
+* limitranges (aka 'limits')
+* namespaces (aka 'ns')
+* networkpolicies
+* nodes (aka 'no')
+* persistentvolumeclaims (aka 'pvc')
+* persistentvolumes (aka 'pv')
+* pods (aka 'po')
+* poddisruptionbudgets (aka 'pdb')
+* podsecuritypolicies (aka 'psp')
+* podtemplates
+* replicasets (aka 'rs')
+* replicationcontrollers (aka 'rc')
+* resourcequotas (aka 'quota')
+* rolebindings
+* roles
+* secrets
+* serviceaccounts (aka 'sa')
+* services (aka 'svc')
+* statefulsets
+* storageclasses
+* thirdpartyresources
+
 ## Lab
 
 ### Explore service objects
@@ -44,3 +83,31 @@
   * *Question: What will the service endpoints look like if you redeploy the deployment object now? Make a prediction.*
   * *Redeploy the deployment: `kubectl apply -f ./webapp-deployment.yaml`*
   * *Wait a moment or two, then yet again compare the IPs to the service endpoints.*
+
+* Create a 2nd deployment
+
+  * Create a new file called `webapp-deployment-prod.yaml` and copy the contents of `webapp-deployment.yaml` into it. Change the deployment name to `nginx-deployment-prod` and change the labs on lines 6, 11, and 15 to `prod`. Also change the replica count on line 8 to `1`.
+  * Deploy this alongside the `env: dev` deployment we already have up and running: `kubectl apply -f ./webapp-deployment-prod.yaml`.
+  * Wait a moment, then check the pods list: `kubectl get pods -n default -o wide`
+  * Filter for just the `prod` pods: `kubectl get pods -n default -l env=prod -o wide`
+    * *Question: Does the `prod` pod "belong" to any service object right now? How could you check/verify? What does that mean for the prod pod right now? Could we add a service for it? How would we do that?*
+  * *Housekeeping: Clean up the `dev` deployment so we have fewer pods running in our very small-capacity cluster: `kubectl delete deploy nginx-deployment -n default`*
+
+* Check out `deployment` object capabilities
+
+  * `Deployment` objects can "scale".
+    * Scale the `prod` deployment to 2: `kubectl scale deploy nginx-deployment-prod --replicas 2 -n default`
+    * Wait a moment, then check the `prod` pods list again: `kubectl get pods -n default -l env=prod -o wide`
+    * Note a few relevant lines from the deployment description: `kubectl describe deploy nginx-deployment-prod -n default | grep -E '^Replicas|^OldReplicaSets|^NewReplicaSet'`
+  * Ability to scale is one of the important capabilities of a `deployment` object. Note that...
+    * That ability is actually provided by the `replicaSet` object that a `deployment` object contains; it's not actually an ability of the `deployment` object itself. (You can create a replicaSet object on its own and use it to scale pods without creating a deployment.)
+    * That ability is manual only unless we employ more machinery. A replicaSet, on its own, can't autoscale. In some ways, a replicaSet looks a lot like the AWS auto-scaling groups we examined this spring; but they can't autoscale on their own.
+  * Another important capability of a `deployment` object is update management...
+
+  * `Deployment` objects can do smooth version updates.
+    * Note another relevant line from the deployment description: `kubectl describe deploy nginx-deployment-prod -n default | grep -E '^StrategyType'`
+      * This should show that we're using the default strategy "Rolling Updates" for automagic zero-downtime updates.
+    * Let's watch a rolling update by deploying a new version of the nginx-deployment-prod deployment with updated container `image: nginx:1.21.0-alpine`
+      * Update the container image in your `webapp-deployment-prod.yaml` file and deploy the update via `kubectl apply -f ./webapp-deployment-prod.yaml` again
+    * Use kubectl to describe the deployments again: `kubectl describe deploy nginx-deployment-prod -n default`
+      * You may not be quick enough to "catch" the rolling update in-progress. But you can still note the replicaSet events listed in the event log at the bottom of the description output. And it you compare the `NewReplicaSet` to what it was a moment ago, you should see that it has changed.
