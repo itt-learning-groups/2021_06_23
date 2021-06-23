@@ -91,7 +91,7 @@ Here's a handy list of k8s resource names along with the short-form names you ca
   * Wait a moment, then check the pods list: `kubectl get pods -n default -o wide`
   * Filter for just the `prod` pods: `kubectl get pods -n default -l env=prod -o wide`
     * *Question: Does the `prod` pod "belong" to any service object right now? How could you check/verify? What does that mean for the prod pod right now? Could we add a service for it? How would we do that?*
-  * *Housekeeping: Clean up the `dev` deployment so we have fewer pods running in our very small-capacity cluster before the next step below: `kubectl delete deploy nginx-deployment -n default`*
+  * *Housekeeping: If you didn't already delete it, clean up the `dev` deployment so we have fewer pods running in our very small-capacity cluster before the next step: `kubectl delete deploy nginx-deployment -n default`*
 
 * Check out `deployment` object capabilities
 
