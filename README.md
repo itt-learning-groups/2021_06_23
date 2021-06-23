@@ -86,12 +86,12 @@ Here's a handy list of k8s resource names along with the short-form names you ca
 
 * Create a 2nd deployment
 
-  * Create a new file called `webapp-deployment-prod.yaml` and copy the contents of `webapp-deployment.yaml` into it. Change the deployment name to `nginx-deployment-prod` and change the labs on lines 6, 11, and 15 to `prod`. Also change the replica count on line 8 to `1`.
+  * Create a new file called `webapp-deployment-prod.yaml` and copy the contents of `webapp-deployment.yaml` into it. Change the deployment name to `nginx-deployment-prod` and change the labels on lines 6, 11, and 15 to `prod`. Also change the replica count on line 8 to `1`. (The latter will help us avoid a resource-limit shortage by keeping us at or below 4 total deployed pods.)
   * Deploy this alongside the `env: dev` deployment we already have up and running: `kubectl apply -f ./webapp-deployment-prod.yaml`.
   * Wait a moment, then check the pods list: `kubectl get pods -n default -o wide`
   * Filter for just the `prod` pods: `kubectl get pods -n default -l env=prod -o wide`
     * *Question: Does the `prod` pod "belong" to any service object right now? How could you check/verify? What does that mean for the prod pod right now? Could we add a service for it? How would we do that?*
-  * *Housekeeping: Clean up the `dev` deployment so we have fewer pods running in our very small-capacity cluster: `kubectl delete deploy nginx-deployment -n default`*
+  * *Housekeeping: Clean up the `dev` deployment so we have fewer pods running in our very small-capacity cluster before the next step below: `kubectl delete deploy nginx-deployment -n default`*
 
 * Check out `deployment` object capabilities
 
@@ -100,8 +100,8 @@ Here's a handy list of k8s resource names along with the short-form names you ca
     * Wait a moment, then check the `prod` pods list again: `kubectl get pods -n default -l env=prod -o wide`
     * Note a few relevant lines from the deployment description: `kubectl describe deploy nginx-deployment-prod -n default | grep -E '^Replicas|^OldReplicaSets|^NewReplicaSet'`
   * Ability to scale is one of the important capabilities of a `deployment` object. Note that...
-    * That ability is actually provided by the `replicaSet` object that a `deployment` object contains; it's not actually an ability of the `deployment` object itself. (You can create a replicaSet object on its own and use it to scale pods without creating a deployment.)
-    * That ability is manual only unless we employ more machinery. A replicaSet, on its own, can't autoscale. In some ways, a replicaSet looks a lot like the AWS auto-scaling groups we examined this spring; but they can't autoscale on their own.
+    * That ability is actually provided by the `replicaSet` object that a `deployment` object contains: It's not actually an ability of the `deployment` object itself. (You can create a replicaSet object on its own and use it to scale pods without creating a deployment object.)
+    * That ability is manual only -- unless we employ more machinery. A replicaSet, on its own, can't autoscale. In some ways, a replicaSet looks a lot like the AWS auto-scaling groups we examined this spring; but they can't autoscale on their own. Remember this fact: We'll come back to it when we talk about pod autoscaling.
   * Another important capability of a `deployment` object is update management...
 
   * `Deployment` objects can do smooth version updates.
